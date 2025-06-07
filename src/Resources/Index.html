@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Multiplayer Chat</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .status {
+                padding: 10px;
+                margin-bottom: 20px;
+                border-radius: 4px;
+                text-align: center;
+            }
+            .connection-list {
+                list-style: none;
+                padding: 0;
+                margin: 0 0 20px 0;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+            .connection-list li {
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+            }
+            .connection-list li:last-child {
+                border-bottom: none;
+            }
+            .message-list {
+                list-style: none;
+                padding: 0;
+                margin: 0 0 20px 0;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            .message-list li {
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+            }
+            .message-list li:last-child {
+                border-bottom: none;
+            }
+            .message-list li.own-message {
+                background-color: rgba(135, 206, 235, 0.2); /* Light blue with 20% opacity */
+                border-left: 3px solid #87CEEB;
+            }
+            .input-group {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            input[type="text"] {
+                flex: 1;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            button {
+                padding: 8px 16px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+            .name-section {
+                margin-bottom: 20px;
+            }
+            .clear-button {
+                background-color: #dc3545;
+            }
+            .clear-button:hover {
+                background-color: #c82333;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="status">Connecting...</div>
+            
+            <div class="name-section">
+                <label for="sender-name">Your Name:</label>
+                <input type="text" id="sender-name" placeholder="Enter your name">
+            </div>
+
+            <h3>Active Connections</h3>
+            <ul id="connection-list" class="connection-list">
+                <li style="text-align: center; color: #6c757d;">No active connections</li>
+            </ul>
+
+            <h3>Messages</h3>
+            <ul id="message-list" class="message-list">
+                <li style="text-align: center; color: #6c757d;">No messages yet</li>
+            </ul>
+
+            <div class="input-group">
+                <input type="text" id="message-input" placeholder="Type your message...">
+                <button onclick="sendMessage()">Send</button>
+                <button class="clear-button" onclick="clearMessages()">Clear Messages</button>
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>
+
