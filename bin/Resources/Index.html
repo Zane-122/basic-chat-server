@@ -7,73 +7,97 @@
         <style>
             body {
                 font-family: Arial, sans-serif;
-                max-width: 800px;
-                margin: 0 auto;
+                margin: 0;
                 padding: 20px;
                 background-color: #f5f5f5;
-                position: relative;
+                min-height: 100vh;
+                box-sizing: border-box;
             }
-            .container {
+            .main-layout {
+                display: flex;
+                gap: 24px;
+                max-width: 1200px;
+                margin: 0 auto;
+                height: calc(100vh - 40px);
+            }
+            .left-panel {
+                width: 45%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .right-panel {
+                width: 55%;
+                display: flex;
+                flex-direction: column;
+            }
+            .panel-box {
                 background-color: white;
                 padding: 20px;
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
-            .room {
-                position: fixed;
-                right: 20px;
-                top: 20px;
-                width: 200px;
-                background-color: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            .connection-box {
+                flex: 0 0 auto;
             }
-            .room h3 {
+            .chat-box {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+            h1 {
+                margin: 0;
+                font-size: 1.5em;
+            }
+            .panel-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .connection-box.minimized .panel-header {
+                margin-bottom: 0;
+            }
+            .minimize-btn {
+                width: 30px;
+                height: 30px;
+                padding: 0;
+                font-size: 20px;
+                line-height: 26px;
+                background: #f0f0f0;
+                color: #333;
+                border-radius: 4px;
+            }
+            .minimize-btn:hover {
+                background: #e0e0e0;
+            }
+            .connection-content {
+                transition: all 0.2s ease;
+            }
+            .connection-box.minimized .connection-content {
+                display: none;
+            }
+            h3 {
                 margin-top: 0;
                 margin-bottom: 10px;
             }
-            .room button {
-                display: block;
-                width: 100%;
-                padding: 8px;
-                margin: 0;
-                text-align: left;
-                background-color: #f8f9fa;
-                border: 1px solid #dee2e6;
-                border-radius: 0;
-                cursor: pointer;
-                transition: background-color 0.2s, color 0.2s;
-                color: #000000;
-            }
-            .room button:first-child {
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-            }
-            .room button:last-child {
-                border-bottom-left-radius: 4px;
-                border-bottom-right-radius: 4px;
-            }
-            .room button:hover {
-                background-color: #e3f2fd;
-            }
-            .room button.selected {
-                background-color: #007bff;
-                color: #ffffff;
-            }
             .status {
                 padding: 10px;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
                 border-radius: 4px;
                 text-align: center;
+            }
+            .name-section {
+                margin-bottom: 15px;
             }
             .connection-list {
                 list-style: none;
                 padding: 0;
-                margin: 0 0 20px 0;
+                margin: 0;
                 border: 1px solid #ddd;
                 border-radius: 4px;
-                max-height: 200px;
+                max-height: 150px;
                 overflow-y: auto;
             }
             .connection-list li {
@@ -85,59 +109,92 @@
             }
             .message-list {
                 list-style: none;
-                padding: 0;
-                margin: 0 0 20px 0;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                max-height: 30vh;
+                padding: 10px;
+                margin: 0 0 15px 0;
+                background: #f5f5f5;
+                border-radius: 8px;
+                flex: 1;
                 overflow-y: auto;
+                min-height: 200px;
+                display: flex;
+                flex-direction: column;
             }
             .message-list li {
-                padding: 10px;
-                border-bottom: 1px solid #ddd;
+                padding: 10px 12px;
+                border-bottom: none;
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
+                flex-direction: column;
+                max-width: 55%;
+                border-radius: 12px;
+                margin-bottom: 8px;
+                background-color: #e8e8e8;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                cursor: pointer;
+                user-select: none;
+                transition: transform 0.1s ease;
+            }
+            .message-list li:active {
+                transform: scale(0.98);
             }
             .message-list li:last-child {
                 border-bottom: none;
             }
             .message-list li.own-message {
-                background-color: rgba(135, 206, 235, 0.2);
-                border-left: 3px solid #87CEEB;
+                background: linear-gradient(135deg, #a8d4ff 0%, #7ec8e3 100%);
+                color: #1a1a1a;
+                align-self: flex-end;
+                border-radius: 12px 12px 4px 12px;
+            }
+            .message-list li:not(.own-message) {
+                align-self: flex-start;
+                border-radius: 12px 12px 12px 4px;
+            }
+            .message-list li.own-message .message-timestamp {
+                color: rgba(0,0,0,0.5);
+            }
+            .message-list li.own-message .reply-original {
+                color: rgba(0,0,0,0.6);
+                border-bottom-color: rgba(0,0,0,0.15);
+            }
+            .message-list li.own-message .reply-original-sender {
+                color: rgba(0,0,0,0.8);
             }
             .message-content {
                 flex: 1;
+                min-width: 0;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                word-break: break-word;
             }
             .message-timestamp {
                 color: #666;
                 font-size: 0.8em;
                 margin-left: 10px;
+                white-space: nowrap;
             }
             .input-group {
                 display: flex;
                 gap: 10px;
-                margin-bottom: 10px;
             }
             input[type="text"] {
                 flex: 1;
-                padding: 8px;
+                padding: 10px;
                 border: 1px solid #ddd;
                 border-radius: 4px;
+                font-size: 14px;
             }
             button {
-                padding: 8px 16px;
+                padding: 10px 16px;
                 background-color: #007bff;
                 color: white;
                 border: none;
                 border-radius: 4px;
                 cursor: pointer;
+                font-size: 14px;
             }
             button:hover {
                 background-color: #0056b3;
-            }
-            .name-section {
-                margin-bottom: 20px;
             }
             .clear-button {
                 background-color: #dc3545;
@@ -145,36 +202,189 @@
             .clear-button:hover {
                 background-color: #c82333;
             }
+            #file-preview {
+                display: none;
+                padding: 8px 12px;
+                margin-bottom: 10px;
+                background: #f0f0f0;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            .reply-wrapper {
+                display: block;
+                margin-bottom: 6px;
+            }
+            .reply-original {
+                display: block;
+                font-size: 12px;
+                color: #777;
+                padding: 4px 0;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                margin-bottom: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .reply-original-sender {
+                font-weight: 600;
+                color: #555;
+            }
+            .reply-original-text {
+                color: #777;
+            }
+            .reply-label {
+                color: #1a5fb4;
+                font-style: italic;
+                font-weight: 600;
+            }
+            .message-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                width: 100%;
+                gap: 10px;
+                min-width: 0;
+            }
+            #reply-preview {
+                display: none;
+                padding: 10px 14px;
+                margin-bottom: 10px;
+                background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+                border-left: 3px solid #007bff;
+                border-radius: 6px;
+                font-size: 13px;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .image-cache-box {
+                flex: 1;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            .image-cache {
+                flex: 1;
+                overflow-y: auto;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 14px;
+                align-content: flex-start;
+                padding: 10px;
+            }
+            .cached-image-wrapper {
+                position: relative;
+                width: calc(50% - 7px);
+                aspect-ratio: 4 / 3;
+            }
+            .cached-image-wrapper img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 6px;
+                cursor: pointer;
+                border: 2px solid #ddd;
+                transition: border-color 0.2s;
+                box-sizing: border-box;
+            }
+            .cached-image-wrapper img:hover {
+                border-color: #007bff;
+            }
+            .cached-image-wrapper .delete-btn {
+                position: absolute;
+                top: 4px;
+                right: 4px;
+                width: 22px;
+                height: 22px;
+                padding: 0;
+                font-size: 12px;
+                line-height: 20px;
+                border-radius: 50%;
+                background: #dc3545;
+                color: white;
+                border: none;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            }
+            .context-menu-item {
+                padding: 12px 20px;
+                cursor: pointer;
+                font-size: 14px;
+                color: var(--text-color);
+                transition: background-color 0.15s;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .context-menu-item:last-child {
+                border-bottom: none;
+            }
+            .context-menu-item:hover {
+                background: var(--message-bg);
+            }
+            .context-menu-item:active {
+                background: var(--border-color);
+            }
         </style>
     </head>
     <body>
-        <div class="container">
-            <h1>Basic Chat</h1>
-            <div class="status">Connect to the server. You can't change your name after you connect</div>
-            
-            <div class="name-section">
-                <label for="sender-name">Your Name:</label>
-                <input type="text" id="sender-name" placeholder="Enter your name">
-                <button id="connect-button" onclick="connectToServer()"> Connect </button>
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="panel-box connection-box" id="connection-box">
+                    <div class="panel-header">
+                        <h1>Basic Chat</h1>
+                        <button class="minimize-btn" id="minimize-btn" onclick="toggleConnectionBox()">−</button>
+                    </div>
+                    <div class="connection-content" id="connection-content">
+                        <div class="status">Connect to the server. You can't change your name after you connect</div>
+                        
+                        <div class="name-section">
+                            <label for="sender-name">Your Name:</label>
+                            <input type="text" id="sender-name" placeholder="Enter your name">
+                            <button id="connect-button" onclick="connectToServer()">Connect</button>
+                        </div>
+
+                        <div class="name-section">
+                            <label for="room-password">Room Password:</label>
+                            <input type="text" id="room-password" placeholder="Enter encryption key">
+                        </div>
+
+                        <h3>Active Connections</h3>
+                        <ul id="connection-list" class="connection-list">
+                            <li style="text-align: center; color: #6c757d;">No active connections</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="panel-box image-cache-box">
+                    <h3>Recent Images</h3>
+                    <div id="image-cache" class="image-cache">
+                        <p style="text-align:center;color:#6c757d;margin:0;">No cached images</p>
+                    </div>
+                </div>
             </div>
 
-            <h3>Active Connections</h3>
-            <ul id="connection-list" class="connection-list">
-                <li style="text-align: center; color: #6c757d;">No active connections</li>
-            </ul>
+            <div class="right-panel">
+                <div class="panel-box chat-box">
+                    <h3>Messages</h3>
+                    <ul id="message-list" class="message-list">
+                        <li style="text-align: center; color: #6c757d;">No messages yet</li>
+                    </ul>
 
-            <h3>Messages</h3>
-            <ul id="message-list" class="message-list">
-                <li style="text-align: center; color: #6c757d;">No messages yet</li>
-            </ul>
-
-            <div class="input-group">
-                <input type="text" id="message-input" placeholder="Type your message...">
-                <button onclick="sendMessage()">Send</button>
-                <button class="clear-button" onclick="clearMessages()">Clear Messages</button>
+                    <div id="reply-preview" style="display:none;padding:8px 12px;margin-bottom:8px;background:#e3f2fd;border-left:3px solid #007bff;border-radius:4px;font-size:13px;align-items:center;justify-content:space-between;"></div>
+                    <div id="file-preview"></div>
+                    <div class="input-group">
+                        <input type="text" id="message-input" placeholder="Type your message...">
+                        <button onclick="sendMessage()">Send</button>
+                        <button class="clear-button" onclick="clearMessages()">Clear</button>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div id="image-modal" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;cursor:pointer;justify-content:center;align-items:center;"><img id="modal-img" style="max-width:90%;max-height:90%;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
+
+        <div id="context-menu-overlay" onclick="hideSaveImagePopup()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1001;"></div>
+        <div id="context-menu" style="display:none;position:fixed;z-index:1004;background:var(--panel-bg);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.5);min-width:160px;overflow:hidden;transform:scale(1);border:1px solid var(--border-color);">
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
         <script src="script.js"></script>
     </body>
 </html>
